@@ -1,6 +1,6 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 
 import {
   Avatar,
@@ -22,7 +22,9 @@ import ExpandMoreTwoToneIcon from '@mui/icons-material/ExpandMoreTwoTone';
 import AccountBoxTwoToneIcon from '@mui/icons-material/AccountBoxTwoTone';
 import LockOpenTwoToneIcon from '@mui/icons-material/LockOpenTwoTone';
 import AccountTreeTwoToneIcon from '@mui/icons-material/AccountTreeTwoTone';
-
+import { logoutAc, manualResult1 } from 'src/http/fetchLogin';
+import {DirectusUsers} from '../../../../types/types'
+import { getImg } from 'src/http/fetchImg';
 const UserBoxButton = styled(Button)(
   ({ theme }) => `
         padding-left: ${theme.spacing(1)};
@@ -57,16 +59,23 @@ const UserBoxDescription = styled(Typography)(
         color: ${lighten(theme.palette.secondary.main, 0.5)}
 `
 );
-
 function HeaderUserbox() {
-  const user = {
+  const user1 = {
     name: 'Catherine Pike',
     avatar: '/static/images/avatars/1.jpg',
     jobtitle: 'Project Manager'
   };
-
+  const [user, setUser] =useState<DirectusUsers>({}) 
+  const navigate = useNavigate();
   const ref = useRef<any>(null);
   const [isOpen, setOpen] = useState<boolean>(false);
+  
+  useEffect(()=>{
+    manualResult1().then((response) => {
+      setUser(response)
+    }).finally(()=>{
+    })
+  }, [])
 
   const handleOpen = (): void => {
     setOpen(true);
@@ -75,16 +84,21 @@ function HeaderUserbox() {
   const handleClose = (): void => {
     setOpen(false);
   };
+  const logoutHandler = () =>{
+    logoutAc()
+    navigate("/")
+  }
+
 
   return (
     <>
       <UserBoxButton color="secondary" ref={ref} onClick={handleOpen}>
-        <Avatar variant="rounded" alt={user.name} src={user.avatar} />
+        <Avatar variant="rounded" alt={user1.name} src={user1.avatar} />
         <Hidden mdDown>
           <UserBoxText>
-            <UserBoxLabel variant="body1">{user.name}</UserBoxLabel>
+            <UserBoxLabel variant="body1">{user.id}</UserBoxLabel>
             <UserBoxDescription variant="body2">
-              {user.jobtitle}
+              {`${user.first_name} / ${user.last_name} /`}
             </UserBoxDescription>
           </UserBoxText>
         </Hidden>
@@ -106,36 +120,17 @@ function HeaderUserbox() {
         }}
       >
         <MenuUserBox sx={{ minWidth: 210 }} display="flex">
-          <Avatar variant="rounded" alt={user.name} src={user.avatar} />
+          <Avatar variant="rounded" alt={user1.name} src={user1.avatar} />
           <UserBoxText>
-            <UserBoxLabel variant="body1">{user.name}</UserBoxLabel>
+            <UserBoxLabel variant="body1">{user.id}</UserBoxLabel>
             <UserBoxDescription variant="body2">
-              {user.jobtitle}
+            {`${user.first_name} / ${user.last_name} /`}
             </UserBoxDescription>
           </UserBoxText>
         </MenuUserBox>
-        <Divider sx={{ mb: 0 }} />
-        <List sx={{ p: 1 }} component="nav">
-          <ListItem button to="/management/profile/details" component={NavLink}>
-            <AccountBoxTwoToneIcon fontSize="small" />
-            <ListItemText primary="My Profile" />
-          </ListItem>
-          <ListItem button to="/dashboards/messenger" component={NavLink}>
-            <InboxTwoToneIcon fontSize="small" />
-            <ListItemText primary="Messenger" />
-          </ListItem>
-          <ListItem
-            button
-            to="/management/profile/settings"
-            component={NavLink}
-          >
-            <AccountTreeTwoToneIcon fontSize="small" />
-            <ListItemText primary="Account Settings" />
-          </ListItem>
-        </List>
-        <Divider />
+        
         <Box sx={{ m: 1 }}>
-          <Button color="primary" fullWidth>
+          <Button color="primary" fullWidth onClick={()=> logoutHandler()}>
             <LockOpenTwoToneIcon sx={{ mr: 1 }} />
             Sign out
           </Button>
